@@ -1,0 +1,55 @@
+ring-signatures在decoy是12的时候最消耗时间空间，在11的时候是9.859s,在13的时候是8.833s，而在12的时候是10.743s
+
+
+bitcoin:
+1. 版本   区块版本号，表示本区块所约定的验证规则
+2. 父区块头哈希值  前一区块的哈希值，使用SHA256(SHA256(父区块头))计算
+3. Merkle树根 该区块中的交易的Merkle树根的哈希值，同样采用SHA256(SHA256())计算
+4. 时间戳 该区块产生的近似时间，精确到秒的UNIX时间戳，必须严格大于前11个区块时间的中值，同时全节点也会拒绝那些超出自己2个小时时间戳的区块
+5. 难度目标 该区块工作量证明算法的难度目标，已经使用特定算法编码
+6. Nonce 为了找到满足难度目标所设定的随机数，为了解决32位随机数在算力飞升的情况下不够用的问题，规定时间戳和coinbase交易信息均可更改，以此扩展nonce的位数
+7. 区块大小：1M
+
+ethereum:
+1. block.coinbase (address):当前区块矿工的地址
+2. block.difficulty (uint): 当前区块挖矿难度
+3. block.gaslimit (uint): 当前区块的 
+4. gaslimitblock.number (uint): 当前区块的区块号
+5. block.timestamp (uint): 当前区块时间戳（自1970/1/1 00:00:00以来的秒数。）
+6. gasleft() returns (uint256): 剩余的
+7. gasmsg.data (bytes): 完整的调用数据（calldata）
+8. msg.gas (uint):当前还剩的gas。在0.4.21版本后被gasleft()替代
+9. msg.sender (address): 当前消息发起人的地址
+10.msg.sig (bytes4): 调用数据(calldata)的前四个字节（例如为：函数标识符）
+11.msg.value (uint): 消息所附带的以太币，单位为wei
+12.now (uint): 当前块的时间戳(block.timestamp的别名)
+13.tx.gasprice (uint): 交易的gas的价格
+14.区块大小不固定，通过gaslimit来动态调节
+
+eos:
+1. block_id_type previous; // 前一个区块的 hash 值
+2. block_timestamp_type timestamp; // 区块时间戳
+3. checksum256_type transaction_mroot; // 交易信息默克尔树根
+4. account_name producer; // 生产者
+5. vector transactions; // 交易数据
+6. 区块大小：
+
+zcash:
+1. 区块高度
+2. 时间戳
+3. 交易尺寸
+4. 交易数据
+5. 当前区块哈希值
+6. 前一区块哈希值
+
+monero:
+1. 区块高度
+2. 时间戳
+3. 交易尺寸
+4. 交易数据
+5. 当前区块哈希值
+6. 前一区块哈希值
+7.区块大小不固定
+
+
+
