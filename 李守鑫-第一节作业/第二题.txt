@@ -15,4 +15,16 @@ EOS:
 			max_cpu_usage_ms：此交易使用的CPU总时间
 			delay_sec：此次交易延迟多少秒内可以被取消
 	区块大小:没找到，认为是随着交易量变化而变化
-	一次交易大小:根据eostracker.io上观察0.01-0.02kb
+	一次交易大小:根据eostracker.io上观察0.01-0.1kb
+monero:
+	交易属性:
+			version ：交易号
+			unlock_time:使用这次交易时的区块时间。
+			vin：输入
+			vout:输出
+	区块大小:认为是区块文件写满。
+	一次交易大小:根据https://moneroblocks.info/网站观察，一次tx是13kb。
+zcash:
+	交易属性:匿名交易的特点
+	区块大小:2M
+	一次交易大小:暂无结果
