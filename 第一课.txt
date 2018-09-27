@@ -1,0 +1,10 @@
+第一题： 
+    ring-signature 的速度是与 decoy 的关系是线性增长的，所以 zk-SNARKs 更快
+
+
+第二题：
+    bitcoin： 交易属性： pow 不具备图灵完备  区块大小 1M   交易数  2000  出块时间 10分钟
+    ethereum： 交易属性： PoW 图灵完备（有gas）   区块大小 1M   交易数  70  出块时间 15秒
+    monero： 交易属性： ring-signature   区块大小 200k   交易数  1000  出块时间 600秒
+    zcash：交易属性： zk-SNARKs   区块大小 2M   交易数  3000  出块时间 2.5分钟
+    eos：交易属性： DPoS+PBFT   区块大小 不固定   交易数  1500  出块时间 0.5s
