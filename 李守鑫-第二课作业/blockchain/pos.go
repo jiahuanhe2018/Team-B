@@ -29,7 +29,6 @@ func pickWinner(rw *bufio.ReadWriter) {
 	fmt.Print("pickWinner timer1111111111111111111111111111111,temp = \n", temp)
 	lotteryPool := []string{}
 	if len(temp) > 0 {
-		fmt.Print("tmp = 0\n")
 		// slightly modified traditional proof of stake algorithm
 		// from all validators who submitted a block, weight them by the number of staked tokens
 		// in traditional proof of stake, validators can participate without submitting a block to be forged
@@ -56,7 +55,7 @@ func pickWinner(rw *bufio.ReadWriter) {
 
 
 		}
-		fmt.Print("lotteryPool = \n", len(lotteryPool))
+		fmt.Println("lotteryPool = ", len(lotteryPool))
 		// randomly pick winner from lottery pool
 		s := rand.NewSource(time.Now().Unix())
 		r := rand.New(s)
@@ -91,7 +90,6 @@ func pickWinner(rw *bufio.ReadWriter) {
 
 //ReadDataByPos
 func ReadDataByPos(rw *bufio.ReadWriter) {
-	fmt.Printf("0000000000000000\n")
 
 	go func() {
 		for{
@@ -112,7 +110,7 @@ func ReadDataByPos(rw *bufio.ReadWriter) {
 	}()
 
 	for {
-		fmt.Printf("1111111111111111111\n")
+
 		str, err := rw.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
@@ -250,7 +248,7 @@ func WriteDataByPos(rw *bufio.ReadWriter) {
 	}
 
 	rw.WriteString(fmt.Sprintf("%s\n", string(bytes)))
-	//rw.Flush()
+	rw.Flush()
 	mutex.Unlock()
 
 	for {
