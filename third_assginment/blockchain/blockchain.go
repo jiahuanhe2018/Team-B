@@ -114,6 +114,15 @@ func (t *Blockchain) GetBalance(address string) uint64 {
 	return 0
 }
 
+//add:查询State转账次数特殊交易
+func (t *Blockchain) GetState(address string) uint64 {
+	accounts := t.LastBlock().Accounts
+	if value, ok := accounts[address]; ok {
+		return value.State
+	}
+	return 0
+}
+
 func (t *Blockchain) PackageTx(newBlock *Block) {
 	(*newBlock).Transactions = t.TxPool.AllTx
 	AccountsMap := t.LastBlock().Accounts

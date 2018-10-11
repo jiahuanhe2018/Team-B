@@ -22,7 +22,7 @@ func makeMuxRouter() http.Handler {
 	muxRouter.HandleFunc("/block", handleWriteBlock).Methods("POST")   // post请求： 本地产生一个块（若交易池中有交易，则打包进块），并将块信息广播到对端节点 e.g {"Msg": 123}
 	muxRouter.HandleFunc("/txpool", handleWriteTx).Methods("POST")     // post请求： 向本地交易池中放入新的交易  e.g {"From":"0x1","To":"0x2","Value":10000,"Data":"message"}
 	muxRouter.HandleFunc("/getbalance", handleBalance).Methods("POST") // 查询账户地址 { "Address":"0x12312132"}
-
+	muxRouter.HandleFunc("/getstate", handleState).Methods("POST")     // add:查询State转账次数 { "Address":"0x12312132"}
 	return muxRouter
 }
 
@@ -128,6 +128,20 @@ func handleBalance(w http.ResponseWriter, r *http.Request) {
 
 	balance := blockchain.BlockchainInstance.GetBalance(rb.Address)
 	respondWithJSON(w, r, http.StatusCreated, balance)
+}
+
+//add: handleState
+func handleState(w http.ResponseWriter, r *http.Request) {
+	var rb RequestBalance
+	decoder := json.NewDecoder(r.Body)
+	if err := decoder.Decode(&rb); err != nil {
+		respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		return
+	}
+	defer r.Body.Close()
+
+	status := blockchain.BlockchainInstance.GetState(rb.Address)
+	respondWithJSON(w, r, http.StatusCreated, status)
 }
 
 func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload interface{}) {
