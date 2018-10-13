@@ -16,67 +16,63 @@ import (
 	"strings"
 	"sync"
 	"time"
-		//"github.com/davecgh/go-spew/spew"
+	//"github.com/davecgh/go-spew/spew"
 	"github.com/libp2p/go-libp2p"
 	"github.com/libp2p/go-libp2p-crypto"
 	"github.com/libp2p/go-libp2p-host"
 	"github.com/libp2p/go-libp2p-net"
 	ma "github.com/multiformats/go-multiaddr"
 	"encoding/gob"
-	//"github.com/davecgh/go-spew/spew"
-	"path/filepath"
 
-	"github.com/syndtr/goleveldb/leveldb"
+		"github.com/syndtr/goleveldb/leveldb"
 	"bytes"
 )
 
 var WalletSuffix string
 var DataFileName string = "chainData.txt"
+
 const difficulty = 1
 
 var TxOk = make(chan int)
 
 // Block represents each 'item' in the blockchain
 type Block struct {
-	Index     int `json:"index"`
-	Timestamp string `json:"timestamp"`
-	Result       int `json:"result"`
-	Hash      string `json:"hash"`
-	PrevHash  string `json:"prevhash"`
-	Proof        uint64           `json:"proof"`
-	Transactions []Transaction `json:"transactions"`
-	Accounts   map[string]Account  `json:"accounts"`
-	Difficulty int
-	Nonce      string
-	Validator string
+	Index        int                `json:"index"`
+	Timestamp    string             `json:"timestamp"`
+	Result       int                `json:"result"`
+	Hash         string             `json:"hash"`
+	PrevHash     string             `json:"prevhash"`
+	Proof        uint64             `json:"proof"`
+	Transactions []Transaction      `json:"transactions"`
+	Accounts     map[string]Account `json:"accounts"`
+	Difficulty   int
+	Nonce        string
+	Validator    string
 }
-
 
 type Account struct {
 	Balance uint64 `json:"balance"`
 	State   uint64 `json:"state"`
 }
 
-
 type Transaction struct {
-	Amount    uint64    `json:"amount"`
+	Amount    uint64 `json:"amount"`
 	Recipient string `json:"recipient"`
 	Sender    string `json:"sender"`
 	Data      []byte `json:"data"`
 }
 
 type TxPool struct {
-	AllTx     []Transaction
+	AllTx []Transaction
 }
 
 func NewTxPool() *TxPool {
 	return &TxPool{
-		AllTx:   make([]Transaction, 0),
+		AllTx: make([]Transaction, 0),
 	}
 }
 
-
-func (p *TxPool)Clear() bool {
+func (p *TxPool) Clear() bool {
 	if len(p.AllTx) == 0 {
 		return true
 	}
@@ -86,10 +82,10 @@ func (p *TxPool)Clear() bool {
 
 // Blockchain is a series of validated Blocks
 type Blockchain struct {
-	Blocks []Block
-	TxPool *TxPool
+	Blocks  []Block
+	TxPool  *TxPool
 	DataDir string
-	Db     *leveldb.DB
+	Db      *leveldb.DB
 }
 
 func (t *Blockchain) NewTransaction(sender string, recipient string, amount uint64, data []byte) *Transaction {
@@ -102,7 +98,7 @@ func (t *Blockchain) NewTransaction(sender string, recipient string, amount uint
 	return transaction
 }
 
-func (t *Blockchain)AddTxPool(tx *Transaction) int {
+func (t *Blockchain) AddTxPool(tx *Transaction) int {
 	t.TxPool.AllTx = append(t.TxPool.AllTx, *tx)
 	return len(t.TxPool.AllTx)
 }
@@ -119,19 +115,18 @@ func (t *Blockchain) GetBalance(address string) uint64 {
 	return 0
 }
 
-
-func (t *Blockchain)PackageTx(newBlock *Block) {
+func (t *Blockchain) PackageTx(newBlock *Block) {
 	(*newBlock).Transactions = t.TxPool.AllTx
 	AccountsMap := t.LastBlock().Accounts
 	for k1, v1 := range AccountsMap {
 		fmt.Println(k1, "--", v1)
 	}
 
-	unusedTx := make([]Transaction,0)
+	unusedTx := make([]Transaction, 0)
 
-	for _, v := range t.TxPool.AllTx{
+	for _, v := range t.TxPool.AllTx {
 		if value, ok := AccountsMap[v.Sender]; ok {
-			if value.Balance < v.Amount{
+			if value.Balance < v.Amount {
 				unusedTx = append(unusedTx, v)
 				continue
 			}
@@ -143,7 +138,7 @@ func (t *Blockchain)PackageTx(newBlock *Block) {
 		if value, ok := AccountsMap[v.Recipient]; ok {
 			value.Balance += v.Amount
 			AccountsMap[v.Recipient] = value
-		}else {
+		} else {
 
 			newAccount := new(Account)
 			newAccount.Balance = v.Amount
@@ -152,10 +147,10 @@ func (t *Blockchain)PackageTx(newBlock *Block) {
 		}
 	}
 
-    t.TxPool.Clear()
-    //余额不够的交易放回交易池
-    if len(unusedTx) > 0 {
-		for _, v := range unusedTx{
+	t.TxPool.Clear()
+	//余额不够的交易放回交易池
+	if len(unusedTx) > 0 {
+		for _, v := range unusedTx {
 			t.AddTxPool(&v)
 		}
 	}
@@ -165,88 +160,70 @@ func (t *Blockchain)PackageTx(newBlock *Block) {
 	TxOk <- 1
 }
 
+func blockchain_log_print(blocks []Block) {
+	bytes, err := json.MarshalIndent(blocks, "", "  ")
+	if err != nil {
 
-func (t *Blockchain)WriteDate2File() {
+		log.Fatal(err)
+	}
+	// Green console color: 	\x1b[32m
+	// Reset console color: 	\x1b[0m
+	fmt.Printf("\x1b[32m%s\x1b[0m> ", string(bytes))
+}
+
+func (t *Blockchain) WriteDate2File() {
+
+	fmt.Printf("\x1b[32m writeDataFiles \x1b[0m> ")
 	if t.DataDir == "" {
 		return
 	}
+
 	var result bytes.Buffer
 
 	encoder := gob.NewEncoder(&result)
-
-	err := encoder.Encode(t.LastBlock())
-
+	err := encoder.Encode(t.Blocks)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	err = t.Db.Put([]byte(t.LastBlock().Hash), result.Bytes(), nil)
-	err = t.Db.Put([]byte("tip"), []byte(t.LastBlock().Hash), nil)
-
-	//joinPath := filepath.Join(t.DataDir, DataFileName)
-	//
-	//file,err := os.OpenFile(joinPath,os.O_WRONLY|os.O_CREATE,0755)  //以写方式打开文件
-	//if err != nil {
-	//	log.Println("can't write data to file, open file fail err:",err)
-	//	return
-	//}
-	//defer file.Close()
-	//enc := gob.NewEncoder(file)
-	//
-	//if err := enc.Encode(t); err != nil {
-	//	log.Fatal("encode error:", err)
-	//}
+	err = t.Db.Put([]byte("blockchain"), result.Bytes(), nil)
 
 	fmt.Println()
-	fmt.Printf("\n%sfile:%s\n>", "已配置数据存储目录，写入当前数据到存储目录中.", filepath.Join(t.DataDir,DataFileName))
+	fmt.Printf("已配置数据存储目录，写入当前数据到存储目录中.")
 }
 
-func (t *Blockchain)ReadDataFromFile() {
+func (t *Blockchain) ReadDataFromFile() {
 	if t.DataDir == "" {
 		return
 	}
 
-	data, err := t.Db.Get([]byte("tip"),nil)
+
+	data, err := t.Db.Get([]byte("blockchain"), nil)
 	if err != nil {
 		log.Panic(err)
 	}
+	var datablock []Block
+	decoder := gob.NewDecoder(bytes.NewReader(data))
+	decoder.Decode(datablock)
 
-	fmt.Println("get the tip = ",data)
+	if len(datablock) > len(t.Blocks) {
+		t.Blocks = datablock
+	}
+	blockchain_log_print(t.Blocks)
 
-	//joinPath := filepath.Join(t.DataDir, DataFileName)
-	//
-	//if !IsExist(joinPath) {
-	//	return
-	//}
-	//
-	//file,err := os.Open(joinPath)  //以写方式打开文件
-	//if err != nil {
-	//	log.Println("can't read data from file, open file fail err:",err)
-	//	return
-	//}
-	//defer file.Close()
-	//dec := gob.NewDecoder(file)
-	//
-	//var blockchainInstanceFromFile Blockchain
-	//if err := dec.Decode(&blockchainInstanceFromFile); err != nil {
-	//	log.Fatal("decode error:", err)
-	//}
-
-	//BlockchainInstance = blockchainInstanceFromFile
 }
 
 var BlockchainInstance Blockchain = Blockchain{
-	TxPool : NewTxPool(),
+	TxPool: NewTxPool(),
 }
 
 var mutex = &sync.Mutex{}
 
-
-func Lock(){
+func Lock() {
 	mutex.Lock()
 }
 
-func UnLock(){
+func UnLock() {
 	mutex.Unlock()
 }
 
@@ -292,13 +269,13 @@ func MakeBasicHost(listenPort int, secio bool, randseed int64, initAccount strin
 	if secio {
 		if initAccount != "" {
 			log.Printf("Now run \"go run main.go \x1b[32m -c chain -l %d -a %s -d %s -secio\x1b[0m\" on a different terminal\n", listenPort+2, initAccount, fullAddr)
-		}else {
+		} else {
 			log.Printf("Now run \"go run main.go \x1b[32m -c chain -l %d -d %s -secio\x1b[0m\" on a different terminal\n", listenPort+2, fullAddr)
 		}
 	} else {
 		if initAccount != "" {
 			log.Printf("Now run \"go run main.go \x1b[32m -c chain -l %d -a %s -d %s\x1b[0m\" on a different terminal\n", listenPort+2, initAccount, fullAddr)
-		}else {
+		} else {
 			log.Printf("Now run \"go run main.go \x1b[32m -c chain -l %d -d %s\x1b[0m\" on a different terminal\n", listenPort+2, fullAddr)
 		}
 	}
@@ -394,7 +371,7 @@ func WriteData(rw *bufio.ReadWriter) {
 
 		sendData = strings.Replace(sendData, "\n", "", -1)
 
-		if "" == sendData{
+		if "" == sendData {
 			continue
 		}
 		_result, err := strconv.Atoi(sendData)
@@ -403,11 +380,11 @@ func WriteData(rw *bufio.ReadWriter) {
 		}
 
 		address := GenPosAddress()
-		newBlock := GenerateBlock(BlockchainInstance.Blocks[len(BlockchainInstance.Blocks)-1], _result,address)
+		newBlock := GenerateBlock(BlockchainInstance.Blocks[len(BlockchainInstance.Blocks)-1], _result, address)
 
 		if len(BlockchainInstance.TxPool.AllTx) > 0 {
 			BlockchainInstance.PackageTx(&newBlock)
-		}else {
+		} else {
 			newBlock.Accounts = BlockchainInstance.LastBlock().Accounts
 			newBlock.Transactions = make([]Transaction, 0)
 		}
@@ -456,8 +433,6 @@ func GenPosAddress() string {
 	return address
 }
 
-
-
 // make sure block is valid by checking index, and comparing the hash of the previous block
 func IsBlockValid(newBlock, oldBlock Block) bool {
 	//return true
@@ -474,10 +449,8 @@ func IsBlockValid(newBlock, oldBlock Block) bool {
 	return true
 }
 
-
-
 // create a new block using previous block's hash
-func GenerateBlock(oldBlock Block, Result int,address string) Block {
+func GenerateBlock(oldBlock Block, Result int, address string) Block {
 	var newBlock Block
 
 	t := time.Now()
