@@ -157,7 +157,7 @@ func (t *Blockchain) PackageTx(newBlock *Block) {
 
 	(*newBlock).Accounts = AccountsMap
 
-	TxOk <- 1
+//	TxOk <- 1
 }
 
 func blockchain_log_print(blocks []Block) {
@@ -364,10 +364,7 @@ func WriteData(rw *bufio.ReadWriter) {
 			log.Fatal(err)
 		}
 
-		if "" == sendData {
-			fmt.Print("> ")
-			continue
-		}
+
 
 		sendData = strings.Replace(sendData, "\n", "", -1)
 
