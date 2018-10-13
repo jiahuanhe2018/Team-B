@@ -96,9 +96,11 @@ func runblockchain(listenF *int, target *string, seed *int64, secio *bool, suffi
 	blockchain.BlockchainInstance.DataDir = *datadir
 	blockchain.BlockchainInstance.Db = db
 
+
 	blockchain.BlockchainInstance.WriteDate2File()
 
 	blockchain.BlockchainInstance.ReadDataFromFile()
+
 
 	// LibP2P code uses golog to log messages. They log with different
 	// string IDs (i.e. "swarm"). We can control the verbosity level for
