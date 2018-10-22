@@ -7,11 +7,11 @@ import (
 	"strconv"
 	"time"
 
-	"Course/third_assginment/blockchain"
+	"Course/thirdassginment/blockchain"
 
 	"github.com/gorilla/mux"
 
-	"Course/third_assginment/wallet"
+	"Course/thirdassginment/wallet"
 	"fmt"
 	"log"
 )
@@ -108,7 +108,8 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("\x1b[32m%s\x1b[0m ", string(b))
 	}
 
-	blockchain.BlockchainInstance.WriteDate2File()
+	// blockchain.BlockchainInstance.WriteDate2File()
+	blockchain.BlockchainInstance.WriteData2Db()
 	respondWithJSON(w, r, http.StatusCreated, newBlock)
 
 }

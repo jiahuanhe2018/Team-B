@@ -1,6 +1,7 @@
 package blockchain
 
 import (
+	"Course/thirdassginment/rlp"
 	"bufio"
 	"context"
 	"crypto/rand"
@@ -28,10 +29,13 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 	"path/filepath"
+
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 var WalletSuffix string
 var DataFileName string = "chainData.txt"
+var DbFileName string = "chainLeverdb"
 
 const difficulty = 1
 
@@ -166,12 +170,71 @@ func (t *Blockchain) PackageTx(newBlock *Block) {
 	(*newBlock).Accounts = AccountsMap
 }
 
+func (t *Blockchain) WriteData2Db() {
+	if t.DataDir == "" {
+		return
+	}
+	joinPath := filepath.Join(t.DataDir, DbFileName)
+
+	db, err := leveldb.OpenFile(joinPath, nil)
+
+	if err != nil {
+		log.Println("can't write data to db, open dbfile fail err:", err)
+		return
+	}
+	defer db.Close()
+
+	enc, err := rlp.EncodeToBytes(t)
+	if err != nil {
+		log.Fatal("encode error:", err)
+	}
+
+	err = db.Put([]byte("chain"), enc, nil)
+
+	if err != nil {
+		log.Fatal("write db error:", err)
+	}
+
+	fmt.Printf("\n%sfile:%s\n>", "已配置leveldb数据存储目录，写入当前数据到存储目录中.", filepath.Join(t.DataDir, DbFileName))
+
+}
+
+func (t *Blockchain) ReadDataFromDb() {
+	if t.DataDir == "" {
+		return
+	}
+
+	joinPath := filepath.Join(t.DataDir, DbFileName)
+
+	if !IsExist(joinPath) {
+		return
+	}
+
+	db, err := leveldb.OpenFile(joinPath, nil)
+	if err != nil {
+		log.Println("can't read data from db, open dbfile fail err:", err)
+		return
+	}
+	defer db.Close()
+
+	dec, err := db.Get([]byte("chain"), nil)
+	if err != nil {
+		log.Fatal("read db error:", err)
+	}
+	var blockchainInstanceFromFile Blockchain
+	error := rlp.DecodeBytes(dec, blockchainInstanceFromFile)
+	if error != nil {
+		log.Fatal("decode error:", err)
+	}
+
+	BlockchainInstance = blockchainInstanceFromFile
+}
+
 func (t *Blockchain) WriteDate2File() {
 	if t.DataDir == "" {
 		return
 	}
 
-	fmt.Printf("dir:", t.DataDir)
 	joinPath := filepath.Join(t.DataDir, DataFileName)
 
 	file, err := os.OpenFile(joinPath, os.O_WRONLY|os.O_CREATE, 0755) //以写方式打开文件
@@ -186,7 +249,6 @@ func (t *Blockchain) WriteDate2File() {
 		log.Fatal("encode error:", err)
 	}
 
-	fmt.Println()
 	fmt.Printf("\n%sfile:%s\n>", "已配置数据存储目录，写入当前数据到存储目录中.", filepath.Join(t.DataDir, DataFileName))
 }
 
@@ -330,7 +392,8 @@ func ReadData(rw *bufio.ReadWriter) {
 				// Reset console color: 	\x1b[0m
 				fmt.Printf("\x1b[32m%s\x1b[0m> ", string(bytes))
 
-				BlockchainInstance.WriteDate2File()
+				// BlockchainInstance.WriteDate2File()
+				BlockchainInstance.WriteData2Db()
 			}
 			mutex.Unlock()
 		}
@@ -399,7 +462,8 @@ func WriteData(rw *bufio.ReadWriter) {
 			log.Println(err)
 		}
 
-		BlockchainInstance.WriteDate2File()
+		// BlockchainInstance.WriteDate2File()
+		BlockchainInstance.WriteData2Db()
 
 		b, err := json.MarshalIndent(BlockchainInstance.Blocks, "", "  ")
 		if err != nil {
@@ -464,7 +528,8 @@ func GenerateBlock(oldBlock Block, Result int, address string) Block {
 		if !isHashValid(CalculateHash(newBlock), newBlock.Difficulty) {
 			fmt.Println(CalculateHash(newBlock), " do more work!")
 			// time.Sleep(time.Second)
-			time.Sleep(time.Millisecond * 2000)
+			time.Sleep(time.Millisecond * 500)
+
 			continue
 		} else {
 			fmt.Println(CalculateHash(newBlock), " work done!")

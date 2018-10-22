@@ -8,10 +8,10 @@ import (
 	"log"
 	"time"
 
-	"Course/third_assginment/blockchain"
-	"Course/third_assginment/rpc"
+	"Course/thirdassginment/blockchain"
+	"Course/thirdassginment/rpc"
 
-	"Course/third_assginment/wallet"
+	"Course/thirdassginment/wallet"
 	"os"
 
 	golog "github.com/ipfs/go-log"
@@ -29,7 +29,6 @@ func main() {
 	command := flag.String("c", "", "mode[\"chain\" or \"account\"]")
 	datadir := flag.String("datadir", "", "Data directory for the databases")
 
-	fmt.Printf("datadirstr:%s", *datadir)
 	listenF := flag.Int("l", 0, "wait for incoming connections[chain mode param]")
 	target := flag.String("d", "", "target peer to dial[chain mode param]")
 	suffix := flag.String("s", "", "wallet suffix [chain mode param]")
@@ -85,7 +84,8 @@ func runblockchain(listenF *int, target *string, seed *int64, secio *bool, suffi
 	blockchain.BlockchainInstance.Blocks = blocks
 	blockchain.BlockchainInstance.DataDir = *datadir
 
-	blockchain.BlockchainInstance.ReadDataFromFile()
+	// blockchain.BlockchainInstance.ReadDataFromFile()
+	blockchain.BlockchainInstance.ReadDataFromDb()
 
 	// LibP2P code uses golog to log messages. They log with different
 	// string IDs (i.e. "swarm"). We can control the verbosity level for
