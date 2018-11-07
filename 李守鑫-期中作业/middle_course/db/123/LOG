@@ -1,0 +1,36 @@
+=============== Nov 2, 2018 (CST) ===============
+09:08:27.047719 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:08:27.058719 db@open opening
+09:08:27.060719 version@stat F·[] S·0B[] Sc·[]
+09:08:27.062719 db@janitor F·2 G·0
+09:08:27.062719 db@open done T·4.0002ms
+=============== Nov 2, 2018 (CST) ===============
+09:10:14.496719 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:10:14.497719 version@stat F·[] S·0B[] Sc·[]
+09:10:14.497719 db@open opening
+09:10:14.497719 journal@recovery F·1
+09:10:14.498719 journal@recovery recovering @1
+09:10:14.505719 memdb@flush created L0@2 N·1 S·607B "blo..ain,v1":"blo..ain,v1"
+09:10:14.507719 version@stat F·[1] S·607B[607B] Sc·[0.25]
+09:10:14.521719 db@janitor F·3 G·0
+09:10:14.521719 db@open done T·24.0014ms
+=============== Nov 2, 2018 (CST) ===============
+09:11:22.868719 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:11:22.870719 version@stat F·[1] S·607B[607B] Sc·[0.25]
+09:11:22.870719 db@open opening
+09:11:22.870719 journal@recovery F·1
+09:11:22.871719 journal@recovery recovering @3
+09:11:22.877719 memdb@flush created L0@5 N·1 S·607B "blo..ain,v3":"blo..ain,v3"
+09:11:22.879719 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+09:11:22.894719 db@janitor F·4 G·0
+09:11:22.894719 db@open done T·24.0014ms
+=============== Nov 2, 2018 (CST) ===============
+09:14:27.069719 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+09:14:27.071719 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+09:14:27.071719 db@open opening
+09:14:27.071719 journal@recovery F·1
+09:14:27.072719 journal@recovery recovering @6
+09:14:27.076719 memdb@flush created L0@8 N·2 S·839B "blo..ain,v6":"blo..ain,v5"
+09:14:27.077719 version@stat F·[3] S·2KiB[2KiB] Sc·[0.75]
+09:14:27.092719 db@janitor F·5 G·0
+09:14:27.092719 db@open done T·21.0012ms
